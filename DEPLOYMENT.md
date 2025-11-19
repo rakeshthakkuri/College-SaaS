@@ -97,9 +97,15 @@ Note this URL - you'll need it for the frontend configuration.
 In Render dashboard, go to Environment section and add:
 
 ```
-VITE_API_URL=https://college-saas-api.fly.dev
+VITE_API_URL=https://college-saas-api.fly.dev/api
 VITE_NODE_ENV=production
 ```
+
+**Important:** 
+- Replace `college-saas-api.fly.dev` with your actual Fly.io backend URL
+- The URL **must include `/api` at the end**: `https://your-backend.fly.dev/api`
+- The URL must include `https://` protocol
+- After adding the environment variable, you need to **rebuild** the site in Render for it to take effect
 
 ### Step 4: Deploy
 
@@ -121,6 +127,11 @@ cd backend
 fly secrets set FRONTEND_URL=https://your-render-app.onrender.com
 fly deploy
 ```
+
+**Important:** 
+- The `FRONTEND_URL` must match your Render frontend URL exactly (including `https://`)
+- For multiple origins, separate with commas: `https://app1.onrender.com,https://app2.onrender.com`
+- After updating, redeploy the backend: `fly deploy`
 
 ## Part 4: Database Setup
 

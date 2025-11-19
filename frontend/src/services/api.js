@@ -1,7 +1,22 @@
 import axios from 'axios';
 
 // Use environment variable in production, fallback to relative path for development
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+let API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+// Ensure API_BASE_URL ends with /api if it's a full URL
+if (API_BASE_URL.startsWith('http')) {
+  // If it's a full URL, ensure it ends with /api
+  if (!API_BASE_URL.endsWith('/api')) {
+    API_BASE_URL = API_BASE_URL.endsWith('/') 
+      ? `${API_BASE_URL}api` 
+      : `${API_BASE_URL}/api`;
+  }
+}
+
+// Log API URL for debugging (always log in production to help debug)
+console.log('API Base URL:', API_BASE_URL);
+console.log('Environment:', import.meta.env.MODE);
+console.log('VITE_API_URL from env:', import.meta.env.VITE_API_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,

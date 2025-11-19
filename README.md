@@ -144,9 +144,11 @@ FRONTEND_URL=http://localhost:3000
 ### Frontend (.env)
 
 ```env
-VITE_API_URL=http://localhost:5001
+VITE_API_URL=http://localhost:5001/api
 VITE_NODE_ENV=development
 ```
+
+**Note:** The `VITE_API_URL` must include `/api` at the end for production deployments.
 
 ## 🚢 Production Deployment
 

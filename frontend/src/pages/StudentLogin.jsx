@@ -29,7 +29,28 @@ function StudentLogin() {
       login(response.data.token, response.data.user);
       navigate('/student/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
+      console.error('Login error:', err);
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        config: {
+          url: err.config?.url,
+          baseURL: err.config?.baseURL,
+          method: err.config?.method
+        }
+      });
+
+      if (err.response) {
+        // Server responded with error
+        setError(err.response.data?.error || `Login failed: ${err.response.status}`);
+      } else if (err.request) {
+        // Request made but no response
+        setError('Cannot connect to server. Please check your internet connection and ensure the backend is running.');
+      } else {
+        // Error setting up request
+        setError(`Login failed: ${err.message}`);
+      }
     } finally {
       setLoading(false);
     }
