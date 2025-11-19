@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI, collegeAPI } from '../services/api';
+import { Input, Button, Alert, LoadingSpinner } from '../components';
 import './AuthPages.css';
 
 function StudentSignup() {
@@ -74,83 +75,83 @@ function StudentSignup() {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <h1>Student Signup</h1>
+        <div className="auth-header">
+          <h1>Create Account</h1>
+          <p>Join your college's learning platform</p>
+        </div>
+        
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <Input
+            label="Full Name"
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            placeholder="Enter your full name"
+          />
+
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            placeholder="Enter your email"
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            minLength={6}
+            placeholder="Create a password (min. 6 characters)"
+            helperText="Password must be at least 6 characters long"
+          />
 
           <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              minLength={6}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>College</label>
+            <label className="input-label">
+              College <span className="input-required">*</span>
+            </label>
             {loadingColleges ? (
-              <select disabled>
-                <option>Loading colleges...</option>
-              </select>
+              <div className="input" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <LoadingSpinner size="small" />
+                <span>Loading colleges...</span>
+              </div>
             ) : error ? (
               <div>
-                <select disabled>
+                <select className="input input-error" disabled>
                   <option>Error loading colleges</option>
                 </select>
-                <small style={{ color: '#ef4444', display: 'block', marginTop: '5px' }}>
+                <Alert variant="error" className="mt-sm">
                   {error}
-                </small>
-                <button 
+                </Alert>
+                <Button 
                   type="button"
                   onClick={fetchColleges}
-                  style={{ 
-                    marginTop: '10px', 
-                    padding: '8px 16px', 
-                    background: '#0066FF', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
+                  variant="secondary"
+                  size="small"
+                  className="mt-sm"
                 >
                   Retry
-                </button>
+                </Button>
               </div>
             ) : colleges.length === 0 ? (
               <div>
-                <select disabled>
+                <select className="input" disabled>
                   <option>No colleges available</option>
                 </select>
-                <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
+                <Alert variant="warning" className="mt-sm">
                   Please contact your administrator to register your college.
-                </small>
+                </Alert>
               </div>
             ) : (
               <select
+                className="input"
                 name="collegeName"
                 value={formData.collegeName}
                 onChange={handleChange}
@@ -166,11 +167,20 @@ function StudentSignup() {
             )}
           </div>
 
-          {error && <div className="error">{error}</div>}
+          {error && !error.includes('colleges') && (
+            <Alert variant="error">{error}</Alert>
+          )}
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Signing up...' : 'Sign Up'}
-          </button>
+          <Button 
+            type="submit" 
+            variant="primary" 
+            fullWidth 
+            loading={loading}
+            size="large"
+            className="mt-lg"
+          >
+            Create Account
+          </Button>
         </form>
 
         <p className="auth-link">

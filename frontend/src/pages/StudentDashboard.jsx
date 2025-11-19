@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import DashboardLayout from '../components/DashboardLayout';
+import { DashboardLayout, Card, Button, LoadingSpinner, EmptyState, Badge, Skeleton } from '../components';
 import { studentAPI, assessmentAPI } from '../services/api';
 import './StudentDashboard.css';
 
@@ -49,8 +49,19 @@ function StudentDashboard() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="loading">Loading...</div>
+      <DashboardLayout title="Student Dashboard">
+        <div className="student-dashboard">
+          <Skeleton variant="title" width="40%" height={32} className="mb-lg" />
+          <Skeleton variant="text" lines={2} className="mb-xl" />
+          <div className="stats-grid">
+            {[1, 2, 3].map(i => (
+              <Card key={i} padding="large">
+                <Skeleton variant="text" width="60%" className="mb-md" />
+                <Skeleton variant="title" width="40%" height={40} />
+              </Card>
+            ))}
+          </div>
+        </div>
       </DashboardLayout>
     );
   }
@@ -59,60 +70,73 @@ function StudentDashboard() {
     <DashboardLayout title="Student Dashboard">
       <div className="student-dashboard">
         <div className="welcome-section">
-          <h1>Welcome back, {profile?.name}!</h1>
-          <p>College: {profile?.college?.name}</p>
+          <h1 className="welcome-title">Welcome back, {profile?.name}! 👋</h1>
+          <p className="welcome-subtitle">College: {profile?.college?.name}</p>
         </div>
 
         <div className="stats-grid">
-          <div className="stat-card">
-            <h3>Assessments Completed</h3>
+          <Card hover padding="large" className="stat-card">
+            <div className="stat-icon">📝</div>
+            <h3 className="stat-label">Assessments Completed</h3>
             <p className="stat-value">{stats.assessmentsCompleted}</p>
-          </div>
-          <div className="stat-card">
-            <h3>DSA Topics Completed</h3>
+          </Card>
+          <Card hover padding="large" className="stat-card">
+            <div className="stat-icon">✅</div>
+            <h3 className="stat-label">DSA Topics Completed</h3>
             <p className="stat-value">{stats.dsaTopicsCompleted}</p>
-          </div>
-          <div className="stat-card">
-            <h3>Average Score</h3>
+          </Card>
+          <Card hover padding="large" className="stat-card">
+            <div className="stat-icon">📊</div>
+            <h3 className="stat-label">Average Score</h3>
             <p className="stat-value">{stats.averageScore}%</p>
-          </div>
+          </Card>
         </div>
 
         <div className="quick-actions">
-          <Link to="/student/assessments" className="action-card">
-            <h3>📝 Take Assessment</h3>
+          <Card hover padding="large" className="action-card" onClick={() => window.location.href = '/student/assessments'}>
+            <div className="action-icon">📝</div>
+            <h3>Take Assessment</h3>
             <p>Start a new assessment</p>
-          </Link>
-          <Link to="/student/dsa-roadmap" className="action-card">
-            <h3>🗺️ DSA Roadmap</h3>
+          </Card>
+          <Card hover padding="large" className="action-card" onClick={() => window.location.href = '/student/dsa-roadmap'}>
+            <div className="action-icon">🗺️</div>
+            <h3>DSA Roadmap</h3>
             <p>Continue your learning journey</p>
-          </Link>
-          <Link to="/student/progress" className="action-card">
-            <h3>📊 View Progress</h3>
+          </Card>
+          <Card hover padding="large" className="action-card" onClick={() => window.location.href = '/student/progress'}>
+            <div className="action-icon">📊</div>
+            <h3>View Progress</h3>
             <p>Check your detailed progress</p>
-          </Link>
+          </Card>
         </div>
 
         <div className="recent-assessments">
-          <h2>Available Assessments</h2>
+          <h2 className="section-title">Available Assessments</h2>
           {recentAssessments.length === 0 ? (
-            <p>No assessments available yet.</p>
+            <EmptyState
+              icon="📋"
+              title="No assessments available"
+              description="There are no assessments available at the moment. Check back later!"
+            />
           ) : (
             <div className="assessments-list">
               {recentAssessments.map((assessment) => (
-                <div key={assessment.id} className="assessment-item">
-                  <div>
-                    <h4>{assessment.title}</h4>
-                    <p>{assessment.description || 'No description'}</p>
-                    <small>{assessment._count.questions} questions</small>
+                <Card key={assessment.id} hover padding="large" className="assessment-item">
+                  <div className="assessment-content">
+                    <div className="assessment-header">
+                      <h4 className="assessment-title">{assessment.title}</h4>
+                      <Badge variant="primary">{assessment._count.questions} questions</Badge>
+                    </div>
+                    <p className="assessment-description">{assessment.description || 'No description available'}</p>
                   </div>
-                  <Link
+                  <Button
+                    as={Link}
                     to={`/student/assessments/${assessment.id}/attempt`}
-                    className="btn btn-primary"
+                    variant="primary"
                   >
                     Take Assessment
-                  </Link>
-                </div>
+                  </Button>
+                </Card>
               ))}
             </div>
           )}

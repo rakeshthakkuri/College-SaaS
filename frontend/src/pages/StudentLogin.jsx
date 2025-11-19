@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
+import { Input, Button, Alert } from '../components';
 import './AuthPages.css';
 
 function StudentLogin() {
@@ -59,35 +60,46 @@ function StudentLogin() {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <h1>Student Login</h1>
+        <div className="auth-header">
+          <h1>Welcome Back</h1>
+          <p>Sign in to your account</p>
+        </div>
+        
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            placeholder="Enter your email"
+            autoComplete="email"
+          />
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            placeholder="Enter your password"
+            autoComplete="current-password"
+          />
 
-          {error && <div className="error">{error}</div>}
+          {error && <Alert variant="error">{error}</Alert>}
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
+          <Button 
+            type="submit" 
+            variant="primary" 
+            fullWidth 
+            loading={loading}
+            size="large"
+            className="mt-lg"
+          >
+            Sign In
+          </Button>
         </form>
 
         <p className="auth-link">
