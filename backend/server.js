@@ -55,6 +55,14 @@ app.use('/api/assessments', assessmentRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/colleges', collegeRoutes);
 
+// Log all API requests in development
+if (NODE_ENV === 'development') {
+  app.use('/api', (req, res, next) => {
+    console.log(`${req.method} ${req.path}`);
+    next();
+  });
+}
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
@@ -98,8 +106,8 @@ app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
-// Start server
-const server = app.listen(PORT, () => {
+// Start server - bind to 0.0.0.0 for Fly.io
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📦 Environment: ${NODE_ENV}`);
   if (NODE_ENV === 'production') {

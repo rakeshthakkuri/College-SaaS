@@ -81,11 +81,15 @@ npm run dev
 
 ### 4. Database Setup
 
+**For Development:**
 1. Go to your Supabase SQL Editor
-2. Run the schema: `backend/database/schema.sql`
-3. Run migrations if needed:
-   - `backend/database/migration_remove_code.sql`
-   - `backend/database/migration_add_roles.sql` (run step by step)
+2. Run the schema: `backend/database/schema.sql` or `backend/database/setup-production.sql`
+3. Both files create the same database structure
+
+**For Production:**
+- Use `backend/database/setup-production.sql` (recommended - includes all tables in one file)
+- Or use `backend/database/schema.sql` (original schema file)
+- The production database uses the exact same schema as development
 
 ### 5. Create First SuperAdmin
 

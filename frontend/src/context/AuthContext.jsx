@@ -16,21 +16,44 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      
+      if (token && userData && userData !== 'undefined' && userData !== 'null') {
+        try {
+          const parsedUser = JSON.parse(userData);
+          if (parsedUser && typeof parsedUser === 'object') {
+            setUser(parsedUser);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          }
+        } catch (parseError) {
+          console.error('Error parsing user data from localStorage:', parseError);
+          // Clear invalid data
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
+    } catch (error) {
+      console.error('Error reading from localStorage:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = (token, userData) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    try {
+      if (!token || !userData) {
+        console.error('Invalid login data:', { token, userData });
+        return;
+      }
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
   };
 
   const logout = () => {

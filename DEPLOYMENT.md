@@ -2,12 +2,14 @@
 
 This guide will help you deploy the College SaaS application using Render for the frontend and Fly.io for the backend.
 
+**Important:** The production database uses the same schema as development. All tables, relationships, and data structures are identical.
+
 ## Prerequisites
 
 - GitHub account
 - Render account (free tier available)
 - Fly.io account (free tier available)
-- Supabase account and project
+- Supabase account and project (same database structure as development)
 
 ## Part 1: Deploy Backend to Fly.io
 
@@ -122,33 +124,96 @@ fly deploy
 
 ## Part 4: Database Setup
 
-### Step 1: Run Database Migrations
+### Step 1: Set Up Production Database Schema
 
-1. Go to your Supabase SQL Editor
-2. Run the schema: Copy and paste `backend/database/schema.sql`
-3. Run migrations if needed:
-   - `backend/database/migration_remove_code.sql`
-   - `backend/database/migration_add_roles.sql` (run step by step)
+**Important:** Use the same database schema from development for production.
 
-### Step 2: Create First SuperAdmin
+1. Go to your Supabase Dashboard → SQL Editor
+2. Copy the entire contents of `backend/database/setup-production.sql`
+3. Paste and run it in the SQL Editor
+4. This will create all necessary tables, indexes, and triggers
 
-SSH into your Fly.io app and run:
+**Alternative:** If you prefer to use the original schema file:
+- Copy contents of `backend/database/schema.sql`
+- Run it in Supabase SQL Editor
+
+### Step 2: Verify Database Setup
+
+After running the schema, verify tables were created:
+
+```sql
+-- Check if all tables exist
+SELECT table_name 
+FROM information_schema.tables 
+WHERE table_schema = 'public' 
+ORDER BY table_name;
+```
+
+You should see:
+- College
+- Student
+- SuperAdmin
+- CollegeAdmin
+- Admin
+- Assessment
+- Question
+- AssessmentAttempt
+- Answer
+- DSATopic
+- StudentProgress
+
+### Step 3: Create First SuperAdmin
+
+**Option A: Using Fly.io SSH (Recommended)**
 
 ```bash
-fly ssh console
+fly ssh console -a college-saas-api
 cd /app
 npm run create-superadmin admin@yourdomain.com yourpassword "Admin Name"
+exit
 ```
 
-Or run locally with Fly.io secrets:
+**Option B: Run Locally (Connect to Production Database)**
 
-```bash
-cd backend
-# Set local env vars from Fly.io
-fly secrets list
-# Copy the values and set locally, then:
-npm run create-superadmin admin@yourdomain.com yourpassword "Admin Name"
-```
+1. Temporarily set your local `.env` to use production Supabase credentials:
+   ```bash
+   cd backend
+   # Get secrets from Fly.io
+   fly secrets list
+   ```
+
+2. Update your local `.env` with production Supabase credentials
+
+3. Run the script:
+   ```bash
+   npm run create-superadmin admin@yourdomain.com yourpassword "Admin Name"
+   ```
+
+4. **Important:** Change your local `.env` back to development settings after creating the admin
+
+**Option C: Manual SQL Insert (If scripts don't work)**
+
+1. Generate a password hash (use Node.js):
+   ```bash
+   node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('yourpassword', 10).then(hash => console.log(hash))"
+   ```
+
+2. Generate an ID:
+   ```bash
+   node -e "console.log(require('crypto').randomUUID())"
+   ```
+
+3. Insert into Supabase SQL Editor:
+   ```sql
+   INSERT INTO "SuperAdmin" ("id", "email", "password", "name", "role")
+   VALUES (
+     'your-generated-id',
+     'admin@yourdomain.com',
+     'your-hashed-password',
+     'Admin Name',
+     'ADMIN'
+   );
+   ```
 
 ## Part 5: Verify Deployment
 

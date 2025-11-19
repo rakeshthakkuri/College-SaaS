@@ -8,20 +8,28 @@ const router = express.Router();
 // Get all colleges (public endpoint for signup)
 router.get('/', async (req, res) => {
   try {
+    console.log('Fetching colleges from database...');
     const { data: colleges, error } = await supabase
       .from('College')
       .select('id, name')
       .order('name', { ascending: true });
 
     if (error) {
-      console.error('Error fetching colleges:', error);
-      return res.status(500).json({ error: 'Failed to fetch colleges' });
+      console.error('Supabase error fetching colleges:', error);
+      return res.status(500).json({ 
+        error: 'Failed to fetch colleges',
+        details: error.message 
+      });
     }
 
+    console.log(`Successfully fetched ${colleges?.length || 0} colleges`);
     res.json(colleges || []);
   } catch (error) {
     console.error('Get colleges error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error.message 
+    });
   }
 });
 

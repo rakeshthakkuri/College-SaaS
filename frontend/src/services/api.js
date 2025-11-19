@@ -26,6 +26,26 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log error details for debugging
+    if (error.response) {
+      // Server responded with error status
+      console.error('API Error:', {
+        status: error.response.status,
+        data: error.response.data,
+        url: error.config?.url
+      });
+    } else if (error.request) {
+      // Request made but no response received
+      console.error('Network Error:', {
+        message: 'No response from server',
+        url: error.config?.url,
+        baseURL: error.config?.baseURL
+      });
+    } else {
+      // Error setting up request
+      console.error('Request Error:', error.message);
+    }
+
     if (error.response?.status === 401) {
       // Unauthorized - clear token and redirect to login
       localStorage.removeItem('token');

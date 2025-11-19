@@ -25,10 +25,26 @@ function StudentSignup() {
   const fetchColleges = async () => {
     try {
       const response = await collegeAPI.getAll();
-      setColleges(response.data);
+      setColleges(response.data || []);
+      setError(''); // Clear any previous errors
     } catch (err) {
       console.error('Error fetching colleges:', err);
-      setError('Failed to load colleges. Please refresh the page.');
+      const errorMessage = err.response?.data?.error || err.message || 'Unknown error';
+      console.error('Full error details:', {
+        message: errorMessage,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: err.config?.url
+      });
+      
+      // More helpful error message
+      if (err.response?.status === 0 || err.code === 'ERR_NETWORK') {
+        setError('Cannot connect to server. Please check if the backend is running.');
+      } else if (err.response?.status === 500) {
+        setError('Server error. Please try again later.');
+      } else {
+        setError(`Failed to load colleges: ${errorMessage}. Please refresh the page.`);
+      }
     } finally {
       setLoadingColleges(false);
     }
@@ -100,6 +116,30 @@ function StudentSignup() {
               <select disabled>
                 <option>Loading colleges...</option>
               </select>
+            ) : error ? (
+              <div>
+                <select disabled>
+                  <option>Error loading colleges</option>
+                </select>
+                <small style={{ color: '#ef4444', display: 'block', marginTop: '5px' }}>
+                  {error}
+                </small>
+                <button 
+                  type="button"
+                  onClick={fetchColleges}
+                  style={{ 
+                    marginTop: '10px', 
+                    padding: '8px 16px', 
+                    background: '#0066FF', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Retry
+                </button>
+              </div>
             ) : colleges.length === 0 ? (
               <div>
                 <select disabled>

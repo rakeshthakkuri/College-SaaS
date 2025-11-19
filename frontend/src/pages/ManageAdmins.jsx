@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { adminAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import './ManageAdmins.css';
 
 function ManageAdmins() {
@@ -174,8 +175,8 @@ function ManageAdmins() {
                         <button
                           onClick={() => handleDelete(admin.id)}
                           className="btn btn-danger btn-sm"
-                          disabled={admin.id === JSON.parse(localStorage.getItem('user'))?.id}
-                          title={admin.id === JSON.parse(localStorage.getItem('user'))?.id ? 'Cannot delete your own account' : 'Delete admin'}
+                          disabled={admin.id === user?.id}
+                          title={admin.id === user?.id ? 'Cannot delete your own account' : 'Delete admin'}
                         >
                           Delete
                         </button>
