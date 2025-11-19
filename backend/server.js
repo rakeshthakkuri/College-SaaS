@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import compression from 'compression';
 import authRoutes from './routes/auth.js';
 import studentRoutes from './routes/students.js';
 import adminRoutes from './routes/admin.js';
@@ -14,6 +15,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// Compression middleware (gzip responses)
+app.use(compression());
 
 // Security middleware
 app.use(express.json({ limit: '10mb' }));
@@ -48,11 +52,20 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Security headers
+// Security headers and caching
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  // Cache static/public endpoints
+  if (req.path === '/api/health' || req.path === '/api/colleges') {
+    res.setHeader('Cache-Control', 'public, max-age=60'); // Cache for 1 minute
+  } else if (req.path.startsWith('/api/')) {
+    // No cache for authenticated endpoints
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  }
+  
   if (NODE_ENV === 'production') {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }

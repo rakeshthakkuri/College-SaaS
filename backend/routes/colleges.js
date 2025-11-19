@@ -8,7 +8,9 @@ const router = express.Router();
 // Get all colleges (public endpoint for signup)
 router.get('/', async (req, res) => {
   try {
-    console.log('Fetching colleges from database...');
+    // Set cache header for this public endpoint (5 minutes)
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    
     const { data: colleges, error } = await supabase
       .from('College')
       .select('id, name')
@@ -22,7 +24,6 @@ router.get('/', async (req, res) => {
       });
     }
 
-    console.log(`Successfully fetched ${colleges?.length || 0} colleges`);
     res.json(colleges || []);
   } catch (error) {
     console.error('Get colleges error:', error);

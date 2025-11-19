@@ -19,28 +19,45 @@ router.get('/students', authenticateToken, requireRole(['COLLEGE_ADMIN']), async
       return res.status(500).json({ error: 'Failed to fetch students' });
     }
 
-    // Get counts for each student
-    const studentsWithCounts = await Promise.all(
-      (students || []).map(async (student) => {
-        const { count: attemptsCount } = await supabase
-          .from('AssessmentAttempt')
-          .select('*', { count: 'exact', head: true })
-          .eq('studentId', student.id);
+    if (!students || students.length === 0) {
+      return res.json([]);
+    }
 
-        const { count: progressCount } = await supabase
-          .from('Progress')
-          .select('*', { count: 'exact', head: true })
-          .eq('studentId', student.id);
+    // Optimize: Get all counts in parallel using student IDs
+    const studentIds = students.map(s => s.id);
+    
+    // Get all attempt counts in one query
+    const { data: attemptData } = await supabase
+      .from('AssessmentAttempt')
+      .select('studentId')
+      .in('studentId', studentIds);
+    
+    // Get all progress counts in one query
+    const { data: progressData } = await supabase
+      .from('Progress')
+      .select('studentId')
+      .in('studentId', studentIds);
 
-        return {
-          ...student,
-          _count: {
-            assessmentAttempts: attemptsCount || 0,
-            progress: progressCount || 0,
-          },
-        };
-      })
-    );
+    // Count occurrences
+    const attemptsCountMap = {};
+    const progressCountMap = {};
+    
+    attemptData?.forEach(a => {
+      attemptsCountMap[a.studentId] = (attemptsCountMap[a.studentId] || 0) + 1;
+    });
+    
+    progressData?.forEach(p => {
+      progressCountMap[p.studentId] = (progressCountMap[p.studentId] || 0) + 1;
+    });
+
+    // Map counts to students
+    const studentsWithCounts = students.map(student => ({
+      ...student,
+      _count: {
+        assessmentAttempts: attemptsCountMap[student.id] || 0,
+        progress: progressCountMap[student.id] || 0,
+      },
+    }));
 
     res.json(studentsWithCounts);
   } catch (error) {

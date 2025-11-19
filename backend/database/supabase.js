@@ -35,7 +35,22 @@ if (supabaseKey.includes('your-') || supabaseKey.includes('example') || supabase
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Create Supabase client with optimized settings
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  db: {
+    schema: 'public',
+  },
+  global: {
+    headers: {
+      'x-client-info': 'college-saas-backend',
+    },
+  },
+  // Enable connection pooling for better performance
+  auth: {
+    persistSession: false, // Not needed for server-side
+    autoRefreshToken: false,
+  },
+});
 
 // Helper function to generate CUID-like IDs
 export function generateId() {

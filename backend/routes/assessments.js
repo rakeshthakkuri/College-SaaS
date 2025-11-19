@@ -23,28 +23,45 @@ router.get('/', authenticateToken, async (req, res) => {
       return res.status(500).json({ error: 'Failed to fetch assessments' });
     }
 
-    // Get counts for each assessment
-    const assessmentsWithCounts = await Promise.all(
-      (assessments || []).map(async (assessment) => {
-        const { count: questionsCount } = await supabase
-          .from('Question')
-          .select('*', { count: 'exact', head: true })
-          .eq('assessmentId', assessment.id);
+    if (!assessments || assessments.length === 0) {
+      return res.json([]);
+    }
 
-        const { count: attemptsCount } = await supabase
-          .from('AssessmentAttempt')
-          .select('*', { count: 'exact', head: true })
-          .eq('assessmentId', assessment.id);
+    // Optimize: Get all counts in parallel using assessment IDs (fixes N+1 query problem)
+    const assessmentIds = assessments.map(a => a.id);
+    
+    // Get all question counts in one query
+    const { data: questionData } = await supabase
+      .from('Question')
+      .select('assessmentId')
+      .in('assessmentId', assessmentIds);
+    
+    // Get all attempt counts in one query
+    const { data: attemptData } = await supabase
+      .from('AssessmentAttempt')
+      .select('assessmentId')
+      .in('assessmentId', assessmentIds);
 
-        return {
-          ...assessment,
-          _count: {
-            questions: questionsCount || 0,
-            attempts: attemptsCount || 0,
-          },
-        };
-      })
-    );
+    // Count occurrences
+    const questionsCountMap = {};
+    const attemptsCountMap = {};
+    
+    questionData?.forEach(q => {
+      questionsCountMap[q.assessmentId] = (questionsCountMap[q.assessmentId] || 0) + 1;
+    });
+    
+    attemptData?.forEach(a => {
+      attemptsCountMap[a.assessmentId] = (attemptsCountMap[a.assessmentId] || 0) + 1;
+    });
+
+    // Map counts to assessments
+    const assessmentsWithCounts = assessments.map(assessment => ({
+      ...assessment,
+      _count: {
+        questions: questionsCountMap[assessment.id] || 0,
+        attempts: attemptsCountMap[assessment.id] || 0,
+      },
+    }));
 
     res.json(assessmentsWithCounts);
   } catch (error) {
