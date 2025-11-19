@@ -130,12 +130,20 @@ router.post('/admins', authenticateToken, requireRole(['COLLEGE_ADMIN']), async 
       return res.status(400).json({ error: 'Email, password, and name are required' });
     }
 
-    // Check if admin email already exists
-    const { data: existingAdmin } = await supabase
+    // Check if admin email already exists (check both tables)
+    const { data: existingCollegeAdmin } = await supabase
+      .from('CollegeAdmin')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    const { data: existingOldAdmin } = await supabase
       .from('Admin')
       .select('*')
       .eq('email', email)
       .single();
+
+    const existingAdmin = existingCollegeAdmin || existingOldAdmin;
 
     if (existingAdmin) {
       return res.status(400).json({ error: 'Admin with this email already exists' });

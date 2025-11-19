@@ -194,5 +194,41 @@ router.post('/superadmins', authenticateToken, requireRole(['ADMIN']), async (re
   }
 });
 
+// Delete super admin (cannot delete yourself)
+router.delete('/superadmins/:superAdminId', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+  try {
+    const { superAdminId } = req.params;
+
+    if (superAdminId === req.user.id) {
+      return res.status(400).json({ error: 'You cannot delete your own SuperAdmin account' });
+    }
+
+    const { data: superAdmin, error: superAdminError } = await supabase
+      .from('SuperAdmin')
+      .select('*')
+      .eq('id', superAdminId)
+      .single();
+
+    if (superAdminError || !superAdmin) {
+      return res.status(404).json({ error: 'SuperAdmin not found' });
+    }
+
+    const { error: deleteError } = await supabase
+      .from('SuperAdmin')
+      .delete()
+      .eq('id', superAdminId);
+
+    if (deleteError) {
+      console.error('Error deleting super admin:', deleteError);
+      return res.status(500).json({ error: 'Failed to delete super admin' });
+    }
+
+    res.json({ message: 'SuperAdmin deleted successfully' });
+  } catch (error) {
+    console.error('Delete super admin error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;
 

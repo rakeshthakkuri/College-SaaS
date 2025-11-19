@@ -12,7 +12,8 @@ function DashboardLayout({ children, title }) {
   };
 
   const isStudent = user?.role === 'STUDENT';
-  const isAdmin = user?.role === 'ADMIN';
+  const isSuperAdmin = user?.role === 'ADMIN';
+  const isCollegeAdmin = user?.role === 'COLLEGE_ADMIN';
 
   return (
     <div className="dashboard-layout">
@@ -29,7 +30,12 @@ function DashboardLayout({ children, title }) {
                   <Link to="/student/progress">Progress</Link>
                 </>
               )}
-              {isAdmin && (
+              {isSuperAdmin && (
+                <>
+                  <Link to="/superadmin/dashboard">Dashboard</Link>
+                </>
+              )}
+              {isCollegeAdmin && (
                 <>
                   <Link to="/admin/dashboard">Dashboard</Link>
                   <Link to="/admin/students">Students</Link>

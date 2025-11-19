@@ -1,12 +1,14 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+// Use environment variable in production, fallback to relative path for development
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 seconds timeout
 });
 
 // Add token to requests
@@ -16,13 +18,33 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
+
+// Handle response errors globally
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Unauthorized - clear token and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Auth API
 export const authAPI = {
   studentSignup: (data) => api.post('/auth/student/signup', data),
   studentLogin: (data) => api.post('/auth/student/login', data),
   adminLogin: (data) => api.post('/auth/admin/login', data),
+  superAdminLogin: (data) => api.post('/auth/superadmin/login', data),
+  collegeAdminLogin: (data) => api.post('/auth/collegeadmin/login', data),
 };
 
 // Student API
@@ -61,6 +83,16 @@ export const collegeAPI = {
   create: (data) => api.post('/colleges', data),
   getAll: () => api.get('/colleges'),
   verifyName: (name) => api.get(`/colleges/verify/${encodeURIComponent(name)}`),
+};
+
+// SuperAdmin API
+export const superAdminAPI = {
+  getColleges: () => api.get('/superadmin/colleges'),
+  createCollege: (data) => api.post('/superadmin/colleges', data),
+  deleteCollege: (id) => api.delete(`/superadmin/colleges/${id}`),
+  getSuperAdmins: () => api.get('/superadmin/superadmins'),
+  createSuperAdmin: (data) => api.post('/superadmin/superadmins', data),
+  deleteSuperAdmin: (id) => api.delete(`/superadmin/superadmins/${id}`),
 };
 
 export default api;

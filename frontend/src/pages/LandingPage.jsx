@@ -10,7 +10,8 @@ function LandingPage() {
             <h1 className="logo">College SaaS</h1>
             <div className="nav-links">
               <Link to="/student/login" className="btn btn-secondary">Student Login</Link>
-              <Link to="/admin/login" className="btn btn-primary">Admin Login</Link>
+              <Link to="/admin/login" className="btn btn-secondary">College Admin</Link>
+              <Link to="/superadmin/login" className="btn btn-primary">SaaS Owner</Link>
             </div>
           </div>
         </div>

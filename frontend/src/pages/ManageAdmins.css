@@ -1,75 +1,95 @@
 .manage-admins {
-  padding: 20px 0;
+  padding: 0;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .page-header h1 {
   margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 .admin-form-container {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 .form-actions {
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .admins-list h2 {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 
 .empty-state {
   text-align: center;
-  padding: 60px 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 60px 40px;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px dashed var(--border-color);
 }
 
 .empty-state p {
-  font-size: 1.2rem;
-  color: #666;
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .admins-table {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 15px;
 }
 
 thead {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 th {
-  padding: 15px;
+  padding: 16px;
   text-align: left;
   font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #dee2e6;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 td {
-  padding: 15px;
-  border-bottom: 1px solid #dee2e6;
-  color: #666;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+tbody tr {
+  transition: background 0.2s;
 }
 
 tbody tr:hover {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 tbody tr:last-child td {

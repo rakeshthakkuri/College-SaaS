@@ -1,222 +1,242 @@
-# College SaaS - Learning Management Platform
+# College SaaS - Learning Platform
 
-A comprehensive SaaS application for colleges to manage student assessments, DSA roadmaps, and progress tracking.
+A comprehensive SaaS application for colleges to manage students, assessments, DSA roadmaps, and progress tracking.
 
-## Tech Stack
+## 🚀 Features
 
-- **Frontend**: React + Vite
-- **Backend**: Node.js + Express
-- **Database**: Supabase (PostgreSQL)
-- **API**: REST
+- **Multi-tenant Architecture**: Each college has its own workspace
+- **Role-Based Access Control**: 
+  - **SuperAdmin (SaaS Owner)**: Manages all colleges and platform
+  - **CollegeAdmin**: Manages their specific college
+  - **Student**: Takes assessments and tracks progress
+- **Assessment Management**: Create and manage MCQ-based assessments
+- **DSA Roadmap**: Structured learning path for Data Structures and Algorithms
+- **Progress Tracking**: Detailed analytics and progress monitoring
+- **Modern UI**: Clean, responsive design inspired by modern SaaS platforms
 
-## Features
+## 🛠️ Tech Stack
 
-### Student Features
-- Student signup/login with college name
-- Take MCQ-based assessments
-- Track DSA roadmap progress
-- View detailed progress analytics
-- Student dashboard with overview
+### Frontend
+- React 18
+- Vite
+- React Router
+- Axios
+- Modern CSS with Inter font
 
-### Admin Features
-- Admin login
-- View all students in college
-- View individual student progress
-- Create and manage assessments
-- Admin dashboard with statistics
+### Backend
+- Node.js + Express
+- Supabase (PostgreSQL)
+- JWT Authentication
+- bcryptjs for password hashing
 
-## Project Structure
+## 📋 Prerequisites
+
+- Node.js 18+ and npm 9+
+- Supabase account and project
+- Git
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd "College SaaS"
+```
+
+### 2. Backend Setup
+
+```bash
+cd backend
+
+# Install dependencies
+npm install
+
+# Copy environment template
+cp env.example .env
+
+# Edit .env with your Supabase credentials
+# SUPABASE_URL=https://your-project.supabase.co
+# SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+# JWT_SECRET=your-secret-key
+
+# Start development server
+npm run dev
+```
+
+### 3. Frontend Setup
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Copy environment template
+cp env.example .env
+
+# Start development server
+npm run dev
+```
+
+### 4. Database Setup
+
+1. Go to your Supabase SQL Editor
+2. Run the schema: `backend/database/schema.sql`
+3. Run migrations if needed:
+   - `backend/database/migration_remove_code.sql`
+   - `backend/database/migration_add_roles.sql` (run step by step)
+
+### 5. Create First SuperAdmin
+
+```bash
+cd backend
+npm run create-superadmin admin@example.com password123 "Admin Name"
+```
+
+### 6. Access the Application
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5001
+- Health Check: http://localhost:5001/api/health
+
+## 📁 Project Structure
 
 ```
 College SaaS/
 ├── backend/
-│   ├── middleware/
-│   │   └── auth.js
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── students.js
-│   │   ├── admin.js
-│   │   ├── assessments.js
-│   │   ├── progress.js
-│   │   └── colleges.js
-│   ├── database/
-│   │   ├── supabase.js
-│   │   └── schema.sql
-│   ├── server.js
-│   └── package.json
+│   ├── routes/          # API routes
+│   ├── middleware/      # Auth middleware
+│   ├── database/        # Database schemas and migrations
+│   ├── scripts/         # Utility scripts
+│   └── server.js        # Express server
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   └── package.json
-└── README.md
+│   │   ├── pages/       # React pages
+│   │   ├── components/  # Reusable components
+│   │   ├── services/    # API services
+│   │   └── context/     # React context
+│   └── vite.config.js   # Vite configuration
+├── DEPLOYMENT.md        # Deployment guide (Render + Fly.io)
+├── backend/
+│   └── fly.toml         # Fly.io configuration
+└── frontend/
+    └── render.yaml      # Render configuration
 ```
 
-## Setup Instructions
+## 🔐 Environment Variables
 
-### Prerequisites
-- Node.js (v16 or higher)
-- Supabase account (free tier works)
-- npm or yarn
+### Backend (.env)
 
-### Backend Setup
+```env
+NODE_ENV=development
+PORT=5001
+JWT_SECRET=your-secret-key
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+FRONTEND_URL=http://localhost:3000
+```
 
-1. Navigate to the backend directory:
+### Frontend (.env)
+
+```env
+VITE_API_URL=http://localhost:5001
+VITE_NODE_ENV=development
+```
+
+## 🚢 Production Deployment
+
+Deploy to production using **Render (Frontend)** and **Fly.io (Backend)**.
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed step-by-step instructions.
+
+### Quick Deploy
+
+**Backend (Fly.io):**
 ```bash
 cd backend
+fly launch
+fly secrets set JWT_SECRET=... SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... FRONTEND_URL=...
+fly deploy
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+**Frontend (Render):**
+1. Connect GitHub repo to Render
+2. Set build command: `npm install && npm run build`
+3. Set publish directory: `dist`
+4. Add environment variable: `VITE_API_URL=https://your-api.fly.dev`
 
-3. Create a Supabase project:
-   - Go to [supabase.com](https://supabase.com) and create a new project
-   - Get your project URL and service role key from Settings → API
-
-4. Create a `.env` file in the backend directory:
-```env
-SUPABASE_URL="https://your-project-ref.supabase.co"
-SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
-JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
-PORT=5000
-NODE_ENV=development
-```
-
-5. Set up the database:
-   - Go to Supabase SQL Editor
-   - Copy and paste the contents of `backend/database/schema.sql`
-   - Run the SQL to create all tables
-
-6. Start the backend server:
-```bash
-npm run dev
-```
-
-The backend will run on `http://localhost:5000`
-
-For detailed Supabase setup instructions, see `backend/SUPABASE_SETUP.md`
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-```bash
-cd frontend
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-npm run dev
-```
-
-The frontend will run on `http://localhost:3000`
-
-## Usage
-
-### College Onboarding
-
-1. Create a college by making a POST request to `/api/colleges`:
-```json
-{
-  "name": "Example College",
-  "adminEmail": "admin@example.com",
-  "adminPassword": "password123",
-  "adminName": "Admin Name"
-}
-```
-
-This will create a college that students can join using the college name.
-
-### Student Signup
-
-1. Go to the landing page
-2. Click "Get Started as Student"
-3. Fill in the signup form with:
-   - Name
-   - Email
-   - Password
-   - College Name (exact name as registered by admin)
-
-### Admin Login
-
-1. Go to the landing page
-2. Click "Admin Login"
-3. Use the admin credentials created during college onboarding
-
-## API Endpoints
+## 📚 API Endpoints
 
 ### Authentication
 - `POST /api/auth/student/signup` - Student signup
 - `POST /api/auth/student/login` - Student login
-- `POST /api/auth/admin/login` - Admin login
+- `POST /api/auth/superadmin/login` - SuperAdmin login
+- `POST /api/auth/collegeadmin/login` - CollegeAdmin login
 
 ### Students
 - `GET /api/students/profile` - Get student profile
 - `GET /api/students/progress` - Get student progress
 
-### Admin
-- `GET /api/admin/students` - Get all students
-- `GET /api/admin/students/:studentId/progress` - Get student progress
+### Admin (CollegeAdmin)
+- `GET /api/admin/students` - List students
+- `GET /api/admin/admins` - List admins
+- `POST /api/admin/admins` - Create admin
+- `DELETE /api/admin/admins/:id` - Delete admin
+
+### SuperAdmin
+- `GET /api/superadmin/colleges` - List colleges
+- `POST /api/superadmin/colleges` - Create college
+- `DELETE /api/superadmin/colleges/:id` - Delete college
+- `GET /api/superadmin/superadmins` - List super admins
+- `POST /api/superadmin/superadmins` - Create super admin
 
 ### Assessments
-- `GET /api/assessments` - Get all assessments
-- `GET /api/assessments/:id` - Get assessment with questions
-- `POST /api/assessments/:id/attempt` - Submit assessment attempt
-- `POST /api/assessments` - Create assessment (Admin)
-- `PUT /api/assessments/:id` - Update assessment (Admin)
-- `DELETE /api/assessments/:id` - Delete assessment (Admin)
+- `GET /api/assessments` - List assessments
+- `POST /api/assessments` - Create assessment
+- `PUT /api/assessments/:id` - Update assessment
+- `DELETE /api/assessments/:id` - Delete assessment
 
-### Progress
-- `GET /api/progress/dsa` - Get DSA progress
-- `POST /api/progress/dsa` - Update DSA progress
+## 🔒 Security Features
 
-### Colleges
-- `POST /api/colleges` - Create college
-- `GET /api/colleges/verify/:name` - Verify college name
+- JWT-based authentication
+- Password hashing with bcrypt
+- CORS protection
+- Security headers
+- Input validation
+- Role-based access control
 
-## Database Schema
+## 📖 Documentation
 
-The application uses the following main models:
-- **College**: College information
-- **Student**: Student accounts
-- **Admin**: Admin accounts
-- **Assessment**: MCQ assessments
-- **Question**: Assessment questions
-- **AssessmentAttempt**: Student assessment attempts
-- **Progress**: DSA roadmap progress
+- [Deployment Guide](./DEPLOYMENT.md) - Step-by-step guide for Render + Fly.io deployment
 
-## Development
+## 🤝 Contributing
 
-### Backend Development
-- Use `npm run dev` for development with auto-reload
-- Database is managed through Supabase dashboard
-- Use Supabase SQL Editor to run queries or modify schema
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-### Frontend Development
-- The frontend uses Vite for fast development
-- Hot module replacement is enabled
-- API proxy is configured to forward `/api` requests to the backend
+## 📝 License
 
-## Production Deployment
+ISC
 
-1. Set `NODE_ENV=production` in backend `.env`
-2. Build the frontend: `cd frontend && npm run build`
-3. Serve the frontend build files using a static file server
-4. Configure environment variables for production
-5. Ensure Supabase project is set up and database schema is applied
-6. Use Supabase's built-in hosting or deploy backend to a service like Railway, Render, or Heroku
+## 🆘 Support
 
-## License
+For issues and questions:
+1. Check the documentation
+2. Review the deployment guide
+3. Check Supabase dashboard for database issues
 
-MIT
+## 🎯 Roadmap
 
+- [ ] Email notifications
+- [ ] Advanced analytics
+- [ ] Mobile app
+- [ ] Real-time notifications
+- [ ] Export reports
+- [ ] Bulk operations
+
+---
+
+Built with ❤️ for educational institutions

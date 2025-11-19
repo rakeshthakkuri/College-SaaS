@@ -1,0 +1,14 @@
+# Render configuration for static site deployment
+# This file is optional - you can also configure via Render dashboard
+
+services:
+  - type: web
+    name: college-saas-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false  # Set this in Render dashboard to your Fly.io backend URL
+      - key: VITE_NODE_ENV
+        value: production
