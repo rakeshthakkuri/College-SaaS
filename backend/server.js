@@ -8,13 +8,8 @@ import superAdminRoutes from './routes/superadmin.js';
 import assessmentRoutes from './routes/assessments.js';
 import progressRoutes from './routes/progress.js';
 import collegeRoutes from './routes/colleges.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -73,18 +68,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve static files in production
-if (NODE_ENV === 'production') {
-  const frontendBuildPath = path.join(__dirname, '../frontend/dist');
-  app.use(express.static(frontendBuildPath));
-  
-  // Serve React app for all non-API routes
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(frontendBuildPath, 'index.html'));
-    }
-  });
-}
+// Note: Frontend is deployed separately on Render
+// We don't serve static files from the backend
+// The backend only serves API endpoints
 
 // Global error handler
 app.use((err, req, res, next) => {
@@ -104,6 +90,15 @@ app.use((err, req, res, next) => {
 // 404 handler for API routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// Handle all other routes (non-API)
+app.get('*', (req, res) => {
+  res.status(404).json({ 
+    error: 'Not found',
+    message: 'This is an API server. Frontend is deployed separately.',
+    apiDocs: '/api/health'
+  });
 });
 
 // Start server - bind to 0.0.0.0 for Fly.io
